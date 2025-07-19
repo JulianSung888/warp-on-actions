@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TUNNEL_TOKEN: eyJhIjoiZTU3ODMxNTFlMTY3NjkxNTgyYjI1Y2RhYTJkYWJhOTkiLCJ0IjoiOGZjZTMyZDAtZWZmZC00ZGRhLWI5YTUtOTE0YThlMWQ2ZDNlIiwicyI6Ill6Um1NbVkyWVRrdFpEQXdNQzAwTUdKakxXRmlZV010TnpabU1EZGpObVExWlRJMCJ9
+      TUNNEL_TOKEN: eyJhIjoiZTU3ODMxNTFlMTY3NjkxNTgyYjI1Y2RhYTJkYWJhOTkiLCJ0IjoiMDgyYjE0YjQtOTQ0MC00ZmRiLWEzYTctYWNmZTJlZTlhZWIyIiwicyI6Ik56Vm1NV1F6TXpndE4yTTVOUzAwWmpNeExUazVObVl0WldFM05ETXlNV1U0T1RCaiJ9
 
     steps:
       - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
 
       - name: Start HTTP Proxy + Cloudflare Tunnel
         run: |
-          nohup npx http-proxy --port 4080 --target http://localhost:1080 &
+          nohup npx http-proxy --port 430 --target http://localhost:430 &
           nohup cloudflared tunnel run --token "$TUNNEL_TOKEN" &
           sleep 10
           echo "Tunnel started."
