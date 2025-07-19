@@ -1,0 +1,23 @@
+name: WARP Proxy US
+
+on:
+  workflow_dispatch:
+
+jobs:
+  warp:
+    runs-on: ubuntu-latest
+    env:
+      REGION: us
+      WARP_PLUS: "false"
+      TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN_US }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run warp-on-actions
+        uses: fscarmen/warp-on-actions@main
+        with:
+          tunnel-token: ${{ env.TUNNEL_TOKEN }}
+          region: ${{ env.REGION }}
+          warp-plus: ${{ env.WARP_PLUS }}
