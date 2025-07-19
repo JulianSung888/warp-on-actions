@@ -1,15 +1,13 @@
-name: WARP Proxy US
+name: WARP HTTP Proxy US
 
 on:
   workflow_dispatch:
 
 jobs:
-  warp:
+  deploy:
     runs-on: ubuntu-latest
 
     env:
-      REGION: us
-      WARP_PLUS: "false"
       TUNNEL_TOKEN: eyJhIjoiZTU3ODMxNTFlMTY3NjkxNTgyYjI1Y2RhYTJkYWJhOTkiLCJ0IjoiOGZjZTMyZDAtZWZmZC00ZGRhLWI5YTUtOTE0YThlMWQ2ZDNlIiwicyI6Ill6Um1NbVkyWVRrdFpEQXdNQzAwTUdKakxXRmlZV010TnpabU1EZGpObVExWlRJMCJ9
 
     steps:
@@ -19,9 +17,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y wireguard curl wget
+          sudo apt install -y curl wget wireguard
 
-      - name: Install WARP
+      - name: Install WARP client (wireguard)
         run: |
           curl -fsSL https://git.io/warp.sh | sudo bash
 
@@ -31,10 +29,15 @@ jobs:
           chmod +x cloudflared
           sudo mv cloudflared /usr/local/bin/
 
-      - name: Start Cloudflare Tunnel
+      - name: Install http-proxy package
         run: |
-          nohup cloudflared tunnel run --token "$TUNNEL_TOKEN" > tunnel.log 2>&1 &
+          sudo apt install -y nodejs npm
+          sudo npm install -g http-server http-proxy
+
+      - name: Start HTTP Proxy + Cloudflare Tunnel
+        run: |
+          nohup npx http-proxy --port 4080 --target http://localhost:1080 &
+          nohup cloudflared tunnel run --token "$TUNNEL_TOKEN" &
           sleep 10
-          curl https://ipinfo.io
-          sudo apt update && sudo apt install -y jq
-          echo -e "\n🔍 當前出口 IP 資訊（美國）：" && curl -s ipinfo.io | jq
+          echo "Tunnel started."
+          curl -s ipinfo.io | jq
