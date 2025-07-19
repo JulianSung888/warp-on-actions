@@ -6,6 +6,7 @@ on:
 jobs:
   warp:
     runs-on: ubuntu-latest
+
     env:
       REGION: us
       WARP_PLUS: "false"
@@ -15,14 +16,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run WARP (wireguard mode)
-        uses: fscarmen/warp-on-actions@main
-        with:
-          tunnel-token: ${{ env.TUNNEL_TOKEN }}
-          region: ${{ env.REGION }}
-          warp-plus: ${{ env.WARP_PLUS }}
-
-      - name: 查看出口 IP (詳細格式)
+      - name: Install dependencies
         run: |
+          sudo apt update
+          sudo apt install -y wireguard curl wget
+
+      - name: Install WARP
+        run: |
+          curl -fsSL https://git.io/warp.sh | sudo bash
+
+      - name: Install cloudflared
+        run: |
+          wget -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/
+
+      - name: Start Cloudflare Tunnel
+        run: |
+          nohup cloudflared tunnel run --token "$TUNNEL_TOKEN" > tunnel.log 2>&1 &
+          sleep 10
+          curl https://ipinfo.io
           sudo apt update && sudo apt install -y jq
           echo -e "\n🔍 當前出口 IP 資訊（美國）：" && curl -s ipinfo.io | jq
