@@ -7,17 +7,28 @@ jobs:
   warp:
     runs-on: ubuntu-latest
     env:
-      REGION: us
-      WARP_PLUS: "false"
-      TUNNEL_TOKEN: eyJhIjoiZTU3ODMxNTFlMTY3NjkxNTgyYjI1Y2RhYTJkYWJhOTkiLCJ0IjoiOGZjZTMyZDAtZWZmZC00ZGRhLWI5YTUtOTE0YThlMWQ2ZDNlIiwicyI6Ill6Um1NbVkyWVRrdFpEQXdNQzAwTUdKakxXRmlZV010TnpabU1EZGpObVExWlRJMCJ9
+      TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN_US }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Run warp-on-actions
-        uses: fscarmen/warp-on-actions@main
-        with:
-          tunnel-token: ${{ env.TUNNEL_TOKEN }}
-          region: ${{ env.REGION }}
-          warp-plus: ${{ env.WARP_PLUS }}
+      - name: Install WARP
+        run: |
+          sudo apt update
+          sudo apt install -y wireguard curl
+
+          # 自動註冊 WARP 並啟動
+          curl -fsSL https://git.io/warp.sh | bash
+
+      - name: Install Cloudflare Tunnel
+        run: |
+          wget -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/
+
+      - name: Start Cloudflare Tunnel
+        run: |
+          nohup cloudflared tunnel run --token "$TUNNEL_TOKEN" > tunnel.log 2>&1 &
+          sleep 10
+          curl https://ipinfo.io
