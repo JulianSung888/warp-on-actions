@@ -6,22 +6,24 @@ on:
 jobs:
   warp:
     runs-on: ubuntu-latest
+
     env:
-      TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN_US }}
+      TUNNEL_TOKEN: eyJhIjoiZTU3ODMxNTFlMTY3NjkxNTgyYjI1Y2RhYTJkYWJhOTkiLCJ0IjoiOGZjZTMyZDAtZWZmZC00ZGRhLWI5YTUtOTE0YThlMWQ2ZDNlIiwicyI6Ill6Um1NbVkyWVRrdFpEQXdNQzAwTUdKakxXRmlZV010TnpabU1EZGpObVExWlRJMCJ9
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y wireguard curl wget
 
       - name: Install WARP
         run: |
-          sudo apt update
-          sudo apt install -y wireguard curl
+          curl -fsSL https://git.io/warp.sh | sudo bash
 
-          # 自動註冊 WARP 並啟動
-          curl -fsSL https://git.io/warp.sh | bash
-
-      - name: Install Cloudflare Tunnel
+      - name: Install cloudflared
         run: |
           wget -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
           chmod +x cloudflared
